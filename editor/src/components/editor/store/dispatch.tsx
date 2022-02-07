@@ -493,11 +493,17 @@ export function editorDispatch(
   let partOfSameGroup: boolean = false
 
   let didResetInteractionData: boolean = false // please if someone is changing the code around strategySwitchInteractionStateReset, make me nicer and not a variable floating around
+  const isNewDragging =
+    frozenEditorState.canvas.interactionState?.interactionData.type === 'DRAG' &&
+    frozenEditorState.canvas.interactionState.interactionData.prevDrag == null
   if (frozenEditorState.canvas.interactionState != null) {
+    const accumulatedCommands = isNewDragging
+      ? []
+      : [...result.sessionStateState.accumulatedCommands]
     const commandResultCurrent = foldCommands(
       frozenEditorState,
       result.sessionStateState,
-      [...result.sessionStateState.accumulatedCommands],
+      accumulatedCommands,
       shouldApplyChanges ? 'permanent' : 'transient',
     )
     const patchedEditorStateCurrent = applyStatePatches(
@@ -574,7 +580,7 @@ export function editorDispatch(
   const workingSessionStateState: SessionStateState = {
     currentStrategy: strategyName,
     currentStrategyCommands: patchCommands,
-    accumulatedCommands: updatedAccumulatedCommands,
+    accumulatedCommands: isNewDragging ? [] : updatedAccumulatedCommands,
     commandDescriptions: [],
     strategyState: result.sessionStateState.strategyState,
     startingMetadata: result.sessionStateState.startingMetadata,

@@ -65,7 +65,7 @@ import {
   parseClipboardData,
   createDirectInsertImageActions,
 } from '../utils/clipboard'
-import Keyboard, { KeyCharacter, KeysPressed } from '../utils/keyboard'
+import Keyboard, { KeyCharacter, KeysPressed, modifiersForEvent } from '../utils/keyboard'
 import { Modifier } from '../utils/modifiers'
 import RU from '../utils/react-utils'
 import Utils from '../utils/utils'
@@ -93,7 +93,7 @@ import {
 } from '../utils/global-positions'
 import { last, reverse } from '../core/shared/array-utils'
 import { updateSelectModeCanvasSessionDragVector } from '../components/canvas/canvas-strategies/canvas-strategy-types'
-import { updateInteractionViaMouse } from '../interactions_proposal'
+import { createInteractionViaMouse, updateInteractionViaMouse } from '../interactions_proposal'
 
 const webFrame = PROBABLY_ELECTRON ? requireElectron().webFrame : null
 
@@ -885,7 +885,7 @@ export class EditorCanvas extends React.Component<EditorCanvasProps> {
     function fireDragStateUpdate(updateFn: DragState): void {
       dispatch([CanvasActions.createDragState(updateFn)], 'canvas')
     }
-    // TODO insert update functions for canvas interaction session
+
     if (dragState != null) {
       switch (dragState.type) {
         case 'MOVE_DRAG_STATE':
@@ -999,6 +999,37 @@ export class EditorCanvas extends React.Component<EditorCanvasProps> {
           break
         default:
           const _exhaustiveCheck: never = dragState
+          break
+      }
+    }
+    const interactionState = this.props.editor.canvas.interactionState
+    // TODO fix this, it should reset on keydown too
+    if (interactionState != null && !pressed) {
+      switch (interactionState.interactionData.type) {
+        case 'KEYBOARD':
+          // TODO update keyboard interaction state
+          break
+        case 'DRAG':
+          switch (key) {
+            case 'shift':
+            case 'alt':
+            case 'cmd':
+              const modifiers = Modifier.modifiersForKeyboardEvent(event)
+              dispatch([
+                CanvasActions.createInteractionState(
+                  createInteractionViaMouse(
+                    interactionState.interactionData.originalDragStart,
+                    modifiers,
+                    interactionState.activeControl,
+                  ),
+                ),
+              ])
+              break
+            default:
+              break
+          }
+          break
+        default:
           break
       }
     }

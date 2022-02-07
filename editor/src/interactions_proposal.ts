@@ -48,6 +48,7 @@ export interface DragInteractionData {
   dragStart: CanvasPoint
   drag: CanvasVector | null
   prevDrag: CanvasVector | null
+  originalDragStart: CanvasPoint
   dragThresholdPassed: boolean
   modifiers: Modifiers
 }
@@ -181,6 +182,7 @@ export function createInteractionViaMouse(
       dragStart: mouseDownPoint,
       drag: null,
       prevDrag: null,
+      originalDragStart: mouseDownPoint,
       dragThresholdPassed: false,
       modifiers: modifiers,
     },
@@ -212,6 +214,7 @@ export function updateInteractionViaMouse(
         dragStart: currentState.interactionData.dragStart,
         drag: dragThresholdPassed ? drag : null,
         prevDrag: currentState.interactionData.drag,
+        originalDragStart: currentState.interactionData.originalDragStart,
         dragThresholdPassed: dragThresholdPassed,
         modifiers: modifiers,
       },
@@ -274,6 +277,7 @@ export function updateInteractionViaKeyboard(
         dragStart: currentState.interactionData.dragStart,
         drag: currentState.interactionData.drag,
         prevDrag: currentState.interactionData.prevDrag,
+        originalDragStart: currentState.interactionData.originalDragStart,
         dragThresholdPassed: currentState.interactionData.dragThresholdPassed,
         modifiers: modifiers,
       },
