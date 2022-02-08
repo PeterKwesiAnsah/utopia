@@ -498,15 +498,14 @@ export function editorDispatch(
   const hasModifiersChanged =
     frozenEditorState.canvas.interactionState?.interactionData.type === 'DRAG' &&
     storedState.editor.canvas.interactionState?.interactionData.type === 'DRAG' &&
-    (frozenEditorState.canvas.interactionState.interactionData.modifiers.alt !==
-      storedState.editor.canvas.interactionState.interactionData.modifiers.alt ||
-      frozenEditorState.canvas.interactionState.interactionData.modifiers.cmd !==
-        storedState.editor.canvas.interactionState.interactionData.modifiers.cmd ||
-      frozenEditorState.canvas.interactionState.interactionData.modifiers.ctrl !==
-        storedState.editor.canvas.interactionState.interactionData.modifiers.ctrl ||
-      frozenEditorState.canvas.interactionState.interactionData.modifiers.shift !==
-        storedState.editor.canvas.interactionState.interactionData.modifiers.shift)
-
+    ((!frozenEditorState.canvas.interactionState.interactionData.modifiers.alt &&
+      storedState.editor.canvas.interactionState.interactionData.modifiers.alt) ||
+      (!frozenEditorState.canvas.interactionState.interactionData.modifiers.cmd &&
+        storedState.editor.canvas.interactionState.interactionData.modifiers.cmd) ||
+      (!frozenEditorState.canvas.interactionState.interactionData.modifiers.ctrl &&
+        storedState.editor.canvas.interactionState.interactionData.modifiers.ctrl) ||
+      (!frozenEditorState.canvas.interactionState.interactionData.modifiers.shift &&
+        storedState.editor.canvas.interactionState.interactionData.modifiers.shift))
   if (frozenEditorState.canvas.interactionState != null) {
     const accumulatedCommands = hasModifiersChanged
       ? []

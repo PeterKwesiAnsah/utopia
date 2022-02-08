@@ -1,7 +1,14 @@
 import { EdgePosition } from './components/canvas/canvas-types'
 import { MoveIntoDragThreshold } from './components/canvas/canvas-utils'
 import { ElementInstanceMetadata, ElementInstanceMetadataMap } from './core/shared/element-template'
-import { CanvasPoint, CanvasVector } from './core/shared/math-utils'
+import {
+  canvasPoint,
+  CanvasPoint,
+  CanvasVector,
+  offsetPoint,
+  pointDifference,
+  zeroCanvasPoint,
+} from './core/shared/math-utils'
 import { ElementPath } from './core/shared/project-file-types'
 import { KeyCharacter, Modifier } from './utils/keyboard'
 import { CanvasControlType } from './components/canvas/canvas-strategies/canvas-strategy-types'
@@ -214,6 +221,39 @@ export function updateInteractionViaMouse(
         dragStart: currentState.interactionData.dragStart,
         drag: dragThresholdPassed ? drag : null,
         prevDrag: currentState.interactionData.drag,
+        originalDragStart: currentState.interactionData.originalDragStart,
+        dragThresholdPassed: dragThresholdPassed,
+        modifiers: modifiers,
+      },
+      activeControl: currentState.activeControl,
+      sourceOfUpdate: sourceOfUpdate ?? currentState.activeControl,
+      lastInteractionTime: Date.now(),
+      userPreferredStrategy: currentState.userPreferredStrategy,
+    }
+  } else {
+    return currentState
+  }
+}
+
+export function resetInteractionViaKeyboard(
+  currentState: InteractionState,
+  modifiers: Modifiers,
+  sourceOfUpdate: CanvasControlType | null, // If null it means the active control is the source
+): InteractionState {
+  if (currentState.interactionData.type === 'DRAG') {
+    const currentDrag = currentState.interactionData.drag ?? zeroCanvasPoint
+    const drag = pointDifference(
+      currentState.interactionData.originalDragStart,
+      offsetPoint(currentDrag, currentState.interactionData.dragStart),
+    )
+    const dragThresholdPassed =
+      currentState.interactionData.dragThresholdPassed || dragExceededThreshold(drag)
+    return {
+      interactionData: {
+        type: 'DRAG',
+        dragStart: currentState.interactionData.originalDragStart,
+        drag: dragThresholdPassed ? drag : null,
+        prevDrag: null,
         originalDragStart: currentState.interactionData.originalDragStart,
         dragThresholdPassed: dragThresholdPassed,
         modifiers: modifiers,
