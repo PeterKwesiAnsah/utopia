@@ -493,11 +493,22 @@ export function editorDispatch(
   let partOfSameGroup: boolean = false
 
   let didResetInteractionData: boolean = false // please if someone is changing the code around strategySwitchInteractionStateReset, make me nicer and not a variable floating around
-  const isNewDragging =
+
+  // TODO: extract to function
+  const hasModifiersChanged =
     frozenEditorState.canvas.interactionState?.interactionData.type === 'DRAG' &&
-    frozenEditorState.canvas.interactionState.interactionData.prevDrag == null
+    storedState.editor.canvas.interactionState?.interactionData.type === 'DRAG' &&
+    (frozenEditorState.canvas.interactionState.interactionData.modifiers.alt !==
+      storedState.editor.canvas.interactionState.interactionData.modifiers.alt ||
+      frozenEditorState.canvas.interactionState.interactionData.modifiers.cmd !==
+        storedState.editor.canvas.interactionState.interactionData.modifiers.cmd ||
+      frozenEditorState.canvas.interactionState.interactionData.modifiers.ctrl !==
+        storedState.editor.canvas.interactionState.interactionData.modifiers.ctrl ||
+      frozenEditorState.canvas.interactionState.interactionData.modifiers.shift !==
+        storedState.editor.canvas.interactionState.interactionData.modifiers.shift)
+
   if (frozenEditorState.canvas.interactionState != null) {
-    const accumulatedCommands = isNewDragging
+    const accumulatedCommands = hasModifiersChanged
       ? []
       : [...result.sessionStateState.accumulatedCommands]
     const commandResultCurrent = foldCommands(
@@ -581,7 +592,7 @@ export function editorDispatch(
   const workingSessionStateState: SessionStateState = {
     currentStrategy: strategyName,
     currentStrategyCommands: patchCommands,
-    accumulatedCommands: isNewDragging ? [] : updatedAccumulatedCommands,
+    accumulatedCommands: hasModifiersChanged ? [] : updatedAccumulatedCommands,
     commandDescriptions: [],
     strategyState: result.sessionStateState.strategyState,
     startingMetadata: result.sessionStateState.startingMetadata,

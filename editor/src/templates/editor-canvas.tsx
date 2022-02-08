@@ -93,7 +93,11 @@ import {
 } from '../utils/global-positions'
 import { last, reverse } from '../core/shared/array-utils'
 import { updateSelectModeCanvasSessionDragVector } from '../components/canvas/canvas-strategies/canvas-strategy-types'
-import { createInteractionViaMouse, updateInteractionViaMouse } from '../interactions_proposal'
+import {
+  createInteractionViaMouse,
+  updateInteractionViaKeyboard,
+  updateInteractionViaMouse,
+} from '../interactions_proposal'
 
 const webFrame = PROBABLY_ELECTRON ? requireElectron().webFrame : null
 
@@ -1017,8 +1021,10 @@ export class EditorCanvas extends React.Component<EditorCanvasProps> {
               const modifiers = Modifier.modifiersForKeyboardEvent(event)
               dispatch([
                 CanvasActions.createInteractionState(
-                  createInteractionViaMouse(
-                    interactionState.interactionData.originalDragStart,
+                  updateInteractionViaKeyboard(
+                    interactionState,
+                    [],
+                    [],
                     modifiers,
                     interactionState.activeControl,
                   ),
